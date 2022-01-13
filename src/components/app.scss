@@ -1,0 +1,67 @@
+@import "../../node_modules/bootstrap-scss/bootstrap-grid";
+@import "../../node_modules/bootstrap-scss/_mixins";
+@import "../../node_modules/bootstrap-scss/_reboot";
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	justify-items: center;
+	padding: 20px;
+	grid-gap: 20px;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	padding-top: 80px;
+
+	@media (max-width: 992px) {
+		padding-top: 100px;
+	}
+}
+
+.menu {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	text-align: center;
+	padding: 15px 10px;
+	height: auto;
+	z-index: 2;
+	background: white;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+	label {
+		margin: 0 10px 0 0;
+		font-weight: 700;
+	}
+
+	.languages {
+		display: inline-flex;
+		margin-left: 20px;
+
+		button {
+			border: 0;
+			background: #ececec;
+			padding: 6px 12px;
+			border-radius: 5px;
+			font-size: 10px;
+
+			& + button {
+				margin-left: 10px;
+			}
+
+			&.active {
+				pointer-events: none;
+				background: #333;
+				color: white;
+			}
+		}
+	}
+}

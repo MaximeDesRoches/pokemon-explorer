@@ -1,7 +1,5 @@
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 
-const data = [];
-
 const snakeToCamel = (str = ''): string =>
 	str.toLowerCase().replace(/([-_][a-z])/g, group =>
 		group
@@ -87,14 +85,16 @@ function CSVToArray(strData, strDelimiter) {
 	return (arrData);
 }
 
-const base = '../public/data';
+const base = './data';
 const interfaces = readdirSync(base, { withFileTypes: true })
 	.filter(file => file.isFile() && file.name[0] !== '.')
 	.map(file => {
 		const content = CSVToArray(readFileSync(`${base}/${file.name}`).toString(), ',');
 
+		// TODO: Filter empty rows
+
 		const identifiers:string[] = content.shift();
-		const datatypes:string[] = content.shift();
+		const datatypes:string[] = content[0];
 		
 		const props = datatypes.map((d, index) => {
 			let type = !isNaN(parseInt(d, 10)) ? 'number' : 'string';
@@ -106,6 +106,27 @@ const interfaces = readdirSync(base, { withFileTypes: true })
 
 		let intName = snakeToCamel(file.name.replace('.csv', ''));
 		intName = intName.charAt(0).toUpperCase() + intName.slice(1);
+
+		writeFileSync(`../public/json/${intName}.json`, JSON.stringify(content.map(row => {
+			const obj = {};
+			row.forEach((prop, index) => {
+				if (prop === null) return;
+				let type = !isNaN(parseInt(prop, 10)) ? 'number' : 'string';
+				if (identifiers[index].startsWith('is')) {
+					type = 'boolean';
+				}
+
+				if (type === 'number') {
+					obj[snakeToCamel(identifiers[index])] = parseInt(prop, 10);
+				} else if (type === 'boolean') {
+					obj[snakeToCamel(identifiers[index])] = prop === '1';
+				} else {
+					obj[snakeToCamel(identifiers[index])] = prop;
+				}
+			});
+			return obj;
+		})));
+
 		return `interface ${intName} {\n\t${props.join(';\n\t')};\n}`;
 	});
 
