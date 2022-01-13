@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { createSlice } from '@reduxjs/toolkit';
+import { openDB } from 'idb';
+
 import { LANGUAGES } from '../Constants';
 import { createDebouncedAsyncAction } from '../utils/createDebouncedAsyncAction';
 
@@ -34,12 +36,31 @@ const PokemonColors = {
 
 type PokemonState = typeof pokemonInitialState;
 
+const database = openDB('pokemon_cache', 1, {
+	upgrade(db) {
+		db.createObjectStore('pokemon');
+	},
+});
+
+function fetchOrCache<T>(url:string) {
+	return database.then(db => {
+		return db.get('pokemon', url).then(cached => {
+			if (cached) {
+				return cached;
+			}
+			return fetch(url).then(res => res.json() as Promise<T[]>);
+		}).then((data:T[]) => {
+			db.put('pokemon', data, url);
+			return data;
+		});
+	});
+}
+
 export const fetchAllPokemon = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemon',
 	() => {
-		return fetch('/json/Pokemon.json')
-			.then(res => res.json())
-			.then((json:Pokemon[]) => json.filter(p => p.isDefault));
+		return fetchOrCache<Pokemon>('/json/Pokemon.json')
+			.then((json) => json.filter(p => p.isDefault));
 	},
 	{
 		fulfilled: (state, action) => {
@@ -51,7 +72,7 @@ export const fetchAllPokemon = createDebouncedAsyncAction<PokemonState>(
 export const fetchAllPokemonSpecies = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemonSpecies',
 	() => {
-		return fetch('/json/PokemonSpecies.json').then(res => res.json()).then(json => json);
+		return fetchOrCache<PokemonSpecies>('/json/PokemonSpecies.json').then(json => json);
 	},
 	{
 		fulfilled: (state, action) => {
@@ -63,9 +84,8 @@ export const fetchAllPokemonSpecies = createDebouncedAsyncAction<PokemonState>(
 export const fetchAllPokemonSpeciesNames = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemonSpeciesNames',
 	() => {
-		return fetch('/json/PokemonSpeciesNames.json')
-			.then(res => res.json())
-			.then((json:PokemonSpeciesNames[]) => json.filter(s => Object.values(LANGUAGES).includes(s.localLanguageId)));
+		return fetchOrCache<PokemonSpeciesNames>('/json/PokemonSpeciesNames.json')
+			.then((json) => json.filter(s => Object.values(LANGUAGES).includes(s.localLanguageId)));
 	},
 	{
 		fulfilled: (state, action) => {
@@ -77,9 +97,8 @@ export const fetchAllPokemonSpeciesNames = createDebouncedAsyncAction<PokemonSta
 export const fetchAllPokemonSpeciesFlavorText = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemonSpeciesFlavorText',
 	() => {
-		return fetch('/json/PokemonSpeciesFlavorText.json')
-			.then(res => res.json())
-			.then((json:PokemonSpeciesFlavorText[]) => json.filter(flavor => Object.values(LANGUAGES).includes(flavor.languageId)).reduce((list, flavor) => {
+		return fetchOrCache<PokemonSpeciesFlavorText>('/json/PokemonSpeciesFlavorText.json')
+			.then((json) => json.filter(flavor => Object.values(LANGUAGES).includes(flavor.languageId)).reduce((list, flavor) => {
 				if (list.find(f => f.speciesId === flavor.speciesId)) return list;
 				list.push(flavor);
 				return list;
@@ -96,17 +115,15 @@ export const fetchAllPokemonTypes = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemonTypes',
 	() => {
 		return Promise.all([
-			fetch('/json/PokemonTypes.json')
-				.then(res => res.json())
-				.then((json:PokemonTypes[]) => json.map(type => {
+			fetchOrCache<PokemonTypes>('/json/PokemonTypes.json')
+				.then((json) => json.map(type => {
 					return {
 						...type,
 						color: PokemonColors[type.typeId],
 					};
 				})),
-			fetch('/json/TypeNames.json')
-				.then(res => res.json())
-				.then((json:TypeNames[]) => json),
+			fetchOrCache<TypeNames>('/json/TypeNames.json')
+				.then((json) => json),
 		]).then(([types, typeNames]) => {
 			return types.map(type => ({
 				...type,
