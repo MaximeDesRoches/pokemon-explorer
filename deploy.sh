@@ -1,0 +1,1 @@
+rsync -avzhO build/ ec2-max:~/pokemon

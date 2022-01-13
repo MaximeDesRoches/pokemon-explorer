@@ -59,7 +59,7 @@ function fetchOrCache<T>(url:string) {
 export const fetchAllPokemon = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemon',
 	() => {
-		return fetchOrCache<Pokemon>('/json/Pokemon.json')
+		return fetchOrCache<Pokemon>('./json/Pokemon.json')
 			.then((json) => json.filter(p => p.isDefault));
 	},
 	{
@@ -72,7 +72,7 @@ export const fetchAllPokemon = createDebouncedAsyncAction<PokemonState>(
 export const fetchAllPokemonSpecies = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemonSpecies',
 	() => {
-		return fetchOrCache<PokemonSpecies>('/json/PokemonSpecies.json').then(json => json);
+		return fetchOrCache<PokemonSpecies>('./json/PokemonSpecies.json').then(json => json);
 	},
 	{
 		fulfilled: (state, action) => {
@@ -84,7 +84,7 @@ export const fetchAllPokemonSpecies = createDebouncedAsyncAction<PokemonState>(
 export const fetchAllPokemonSpeciesNames = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemonSpeciesNames',
 	() => {
-		return fetchOrCache<PokemonSpeciesNames>('/json/PokemonSpeciesNames.json')
+		return fetchOrCache<PokemonSpeciesNames>('./json/PokemonSpeciesNames.json')
 			.then((json) => json.filter(s => Object.values(LANGUAGES).includes(s.localLanguageId)));
 	},
 	{
@@ -97,7 +97,7 @@ export const fetchAllPokemonSpeciesNames = createDebouncedAsyncAction<PokemonSta
 export const fetchAllPokemonSpeciesFlavorText = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemonSpeciesFlavorText',
 	() => {
-		return fetchOrCache<PokemonSpeciesFlavorText>('/json/PokemonSpeciesFlavorText.json')
+		return fetchOrCache<PokemonSpeciesFlavorText>('./json/PokemonSpeciesFlavorText.json')
 			.then((json) => json.filter(flavor => Object.values(LANGUAGES).includes(flavor.languageId)).reduce((list, flavor) => {
 				if (list.find(f => f.speciesId === flavor.speciesId)) return list;
 				list.push(flavor);
@@ -115,14 +115,14 @@ export const fetchAllPokemonTypes = createDebouncedAsyncAction<PokemonState>(
 	'pokemon/fetchAllPokemonTypes',
 	() => {
 		return Promise.all([
-			fetchOrCache<PokemonTypes>('/json/PokemonTypes.json')
+			fetchOrCache<PokemonTypes>('./json/PokemonTypes.json')
 				.then((json) => json.map(type => {
 					return {
 						...type,
 						color: PokemonColors[type.typeId],
 					};
 				})),
-			fetchOrCache<TypeNames>('/json/TypeNames.json')
+			fetchOrCache<TypeNames>('./json/TypeNames.json')
 				.then((json) => json),
 		]).then(([types, typeNames]) => {
 			return types.map(type => ({
