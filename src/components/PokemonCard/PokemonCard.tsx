@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 import './_pokemon-card.scss';
 
@@ -10,9 +11,9 @@ interface PokemonCardProps {
 
 export default function PokemonCard({ pokemon }:PokemonCardProps) {
 	return (
-		<div className="pokemon-card" style={{ ['--color' as string]: pokemon.types[0].color }}>
+		<Link to={`/pokemon/${pokemon.id}`} className="pokemon-card" style={{ ['--color' as string]: pokemon.types[0].color }}>
 			<div className="bg">
-				<img src="/images/pokeball.svg" alt="" width="100" height="100" className="pokeball" />
+				<img src={`${process.env.PUBLIC_URL}/images/pokeball.svg`} alt="" width="100" height="100" className="pokeball" />
 			</div>
 			<div className="infos">
 				<div className="number">#{pokemon.id}</div>
@@ -22,6 +23,6 @@ export default function PokemonCard({ pokemon }:PokemonCardProps) {
 				</div>
 			</div>
 			<img className="sprite" loading="lazy" src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`} width="457" height="457" alt={pokemon.identifier} />
-		</div>
+		</Link>
 	);
 }

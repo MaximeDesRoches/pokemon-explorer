@@ -7,7 +7,7 @@ import { rootReducer } from './redux';
 const middleware:Middleware[] = [];
 
 if (process.env.NODE_ENV === 'development') {
-	middleware.push(createLogger({ collapsed: true, diff: true }));
+	middleware.push(createLogger({ collapsed: true, diff: true }) as Middleware);
 }
 
 const store = configureStore({

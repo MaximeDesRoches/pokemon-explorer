@@ -1,0 +1,79 @@
+.pokemon-detail {
+	max-width: 720px;
+	margin: 0 auto;
+	padding: 20px;
+
+	&.empty {
+		text-align: center;
+	}
+
+	.back {
+		margin-bottom: 20px;
+
+		a {
+			color: #333;
+			text-decoration: none;
+			font-weight: 600;
+		}
+	}
+
+	.hero {
+		position: relative;
+		border-radius: 20px;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 20px;
+		margin-bottom: 20px;
+
+		.bg {
+			position: absolute;
+			inset: 0;
+			background: var(--color);
+			opacity: 0.9;
+			z-index: 0;
+		}
+
+		.sprite {
+			position: relative;
+			z-index: 1;
+			width: 60%;
+			max-width: 320px;
+			height: auto;
+		}
+	}
+
+	.number {
+		font-size: 14px;
+		opacity: 0.6;
+		font-weight: 600;
+	}
+
+	.name {
+		font-size: 36px;
+		font-weight: 800;
+		margin: 0 0 10px;
+	}
+
+	.types {
+		display: flex;
+		gap: 8px;
+		margin-bottom: 20px;
+	}
+
+	.type {
+		color: white;
+		background: var(--color);
+		padding: 4px 10px;
+		border-radius: 6px;
+		font-size: 13px;
+		font-weight: 600;
+	}
+
+	.flavor {
+		line-height: 1.6;
+		font-size: 16px;
+		color: #333;
+	}
+}
