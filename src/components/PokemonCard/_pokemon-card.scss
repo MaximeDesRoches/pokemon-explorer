@@ -8,6 +8,8 @@
 	text-decoration: none;
 	cursor: pointer;
 	transition: transform 0.15s ease;
+	content-visibility: auto;
+	contain-intrinsic-size: 120px 300px;
 
 	&:hover {
 		transform: translateY(-3px);
