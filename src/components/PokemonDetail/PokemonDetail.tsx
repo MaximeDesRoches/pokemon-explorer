@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { pokemonByIdSelector } from '../../selectors/pokemon';
-import { fetchAllPokemonSpeciesFlavorText } from '../../redux/pokemon';
+import { fetchPokemonDetail } from '../../redux/pokemon';
 import { useAppDispatch } from '../../store';
 
 import './_pokemon-detail.scss';
@@ -15,8 +15,8 @@ export default function PokemonDetail() {
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		dispatch(fetchAllPokemonSpeciesFlavorText());
-	}, [dispatch]);
+		if (!Number.isNaN(numericId)) dispatch(fetchPokemonDetail(numericId));
+	}, [dispatch, numericId]);
 
 	if (Number.isNaN(numericId)) {
 		return <div className="pokemon-detail empty"><Link to="/">← Back</Link><p>Invalid id.</p></div>;
@@ -26,10 +26,10 @@ export default function PokemonDetail() {
 		return <div className="pokemon-detail empty"><Link to="/">← Back</Link><p>Loading…</p></div>;
 	}
 
-	const flavor = pokemon.flavorTexts[0]?.flavorText.replace(/\s+/g, ' ');
+	const primaryColor = pokemon.typeLabels[0]?.color ?? '#888';
 
 	return (
-		<div className="pokemon-detail" style={{ ['--color' as string]: pokemon.types[0].color }}>
+		<div className="pokemon-detail" style={{ ['--color' as string]: primaryColor }}>
 			<div className="back"><Link to="/">← Back</Link></div>
 			<div className="hero">
 				<div className="bg" />
@@ -43,15 +43,26 @@ export default function PokemonDetail() {
 			</div>
 			<div className="body">
 				<div className="number">#{pokemon.id}</div>
-				<h1 className="name">{pokemon.name?.name ?? pokemon.identifier}</h1>
+				<h1 className="name">{pokemon.displayName}</h1>
 				<div className="types">
-					{pokemon.types.map(type => (
-						<span key={type.typeId} className="type" style={{ ['--color' as string]: type.color }}>
-							{type?.name?.name}
+					{pokemon.typeLabels.map(type => (
+						<span key={type.id} className="type" style={{ ['--color' as string]: type.color }}>
+							{type.label}
 						</span>
 					))}
 				</div>
-				{flavor && <p className="flavor">{flavor}</p>}
+				{pokemon.flavorText && <p className="flavor">{pokemon.flavorText}</p>}
+				{pokemon.detail && (
+					<dl className="stats">
+						<dt>Height</dt><dd>{pokemon.detail.height / 10} m</dd>
+						<dt>Weight</dt><dd>{pokemon.detail.weight / 10} kg</dd>
+						{pokemon.detail.stats.map(stat => (
+							<React.Fragment key={stat.name}>
+								<dt>{stat.name}</dt><dd>{stat.base}</dd>
+							</React.Fragment>
+						))}
+					</dl>
+				)}
 			</div>
 		</div>
 	);

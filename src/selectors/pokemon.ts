@@ -1,70 +1,54 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { IRootState } from '../store';
+import { PokemonDetail, PokemonIndexEntry } from '../redux/pokemon';
+import { LANGUAGES } from '../Constants';
 
-const pokemonListStateSelector = (state: IRootState) => state.pokemon.list;
-const pokemonSpeciesStateSelector = (state: IRootState) => state.pokemon.species;
-const pokemonSpeciesNamesStateSelector = (state: IRootState) => state.pokemon.speciesNames;
-const pokemonSpeciesFlavorTextsStateSelector = (state: IRootState) => state.pokemon.speciesFlavorTexts;
-const pokemonTypesStateSelector = (state: IRootState) => state.pokemon.types;
+const indexStateSelector = (state: IRootState) => state.pokemon.index;
+const detailStateSelector = (state: IRootState) => state.pokemon.details;
 const languageStateSelector = (state: IRootState) => state.env.language;
 
-export type CompletePokemon = (Pokemon & {
-	species:PokemonSpecies,
-	names:PokemonSpeciesNames[],
-	name:PokemonSpeciesNames,
-	flavorTexts:PokemonSpeciesFlavorText[],
-	types:(PokemonTypes & {
-		color: string;
-		names: TypeNames[];
-		name: TypeNames;
-	})[],
-});
+function langKey(id: number): 'fr' | 'en' {
+	return id === LANGUAGES.fr ? 'fr' : 'en';
+}
 
-export const pokemonByIdSelector = (id: number) => createSelector([
-	pokemonListStateSelector,
-	pokemonSpeciesStateSelector,
-	pokemonSpeciesNamesStateSelector,
-	pokemonSpeciesFlavorTextsStateSelector,
-	pokemonTypesStateSelector,
-	languageStateSelector,
-], (pokemons, species, speciesNames, speciesFlavorTexts, types, language):CompletePokemon | null => {
-	const pokemon = pokemons.find(p => p.id === id);
-	if (!pokemon) return null;
-	if (species.length === 0 || speciesNames.length === 0 || types.length === 0) return null;
+export interface PokemonListItem extends PokemonIndexEntry {
+	displayName: string;
+	typeLabels: { id: number; color: string; label: string }[];
+}
 
-	return {
-		...pokemon,
-		species: species.find(s => s.id === pokemon.speciesId),
-		names: speciesNames.filter(s => s.pokemonSpeciesId === pokemon.speciesId).filter(s => s.localLanguageId === language),
-		name: speciesNames.find(s => s.pokemonSpeciesId === pokemon.speciesId && s.localLanguageId === language),
-		flavorTexts: speciesFlavorTexts.filter(s => s.speciesId === pokemon.speciesId).filter(f => f.languageId === language),
-		types: types.filter(t => t.pokemonId === pokemon.id).map(t => ({
-			...t,
-			name: t.names.find(n => n.localLanguageId === language),
-		})),
-	} as CompletePokemon;
-});
-
-export const pokemonSelector = createSelector([
-	pokemonListStateSelector,
-	pokemonSpeciesStateSelector,
-	pokemonSpeciesNamesStateSelector,
-	pokemonTypesStateSelector,
-	languageStateSelector,
-], (pokemons, species, speciesNames, types, language):CompletePokemon[] => {
-	if (pokemons.length === 0 || species.length === 0 || speciesNames.length === 0 || types.length === 0) return [];
-
-	return pokemons.map(pokemon => {
-		return {
-			...pokemon,
-			species: species.find(s => s.id === pokemon.speciesId),
-			names: speciesNames.filter(s => s.pokemonSpeciesId === pokemon.speciesId).filter(s => s.localLanguageId === language),
-			name: speciesNames.find(s => s.pokemonSpeciesId === pokemon.speciesId && s.localLanguageId === language),
-			flavorTexts: [],
-			types: types.filter(t => t.pokemonId === pokemon.id).map(t => ({
-				...t,
-				name: t.names.find(n => n.localLanguageId === language),
+export const pokemonListSelector = createSelector(
+	[indexStateSelector, languageStateSelector],
+	(index, language): PokemonListItem[] => {
+		const key = langKey(language);
+		return index.map(p => ({
+			...p,
+			displayName: p.names[key] ?? p.identifier,
+			typeLabels: p.types.map(t => ({
+				id: t.id,
+				color: t.color,
+				label: t.names[key] ?? '',
 			})),
+		}));
+	},
+);
+
+export const pokemonByIdSelector = (id: number) => createSelector(
+	[indexStateSelector, detailStateSelector, languageStateSelector],
+	(index, details, language) => {
+		const entry = index.find(p => p.id === id);
+		if (!entry) return null;
+		const detail: PokemonDetail | undefined = details[id];
+		const key = langKey(language);
+		return {
+			...entry,
+			displayName: entry.names[key] ?? entry.identifier,
+			typeLabels: entry.types.map(t => ({
+				id: t.id,
+				color: t.color,
+				label: t.names[key] ?? '',
+			})),
+			detail,
+			flavorText: detail?.flavorText[key],
 		};
-	});
-});
+	},
+);

@@ -1,22 +1,22 @@
 import React, { ChangeEvent, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { pokemonSelector } from '../../selectors/pokemon';
+import { pokemonListSelector } from '../../selectors/pokemon';
 import PokemonCard from '../PokemonCard/PokemonCard';
 
 export default function PokemonList() {
-	const pokemons = useSelector(pokemonSelector);
+	const pokemons = useSelector(pokemonListSelector);
 	const [searchText, setSearchText] = React.useState('');
 
 	const filteredPokemons = useMemo(() => {
 		if (searchText === '') return pokemons;
 		if (!isNaN(Number(searchText))) {
-			return pokemons
-				.filter(pokemon => pokemon.isDefault)
-				.filter(pokemon => pokemon.id === Number(searchText));
+			return pokemons.filter(p => p.id === Number(searchText));
 		}
-		return pokemons
-			.filter(pokemon => pokemon.isDefault)
-			.filter(pokemon => pokemon.names.find(name => name.name.toLowerCase().includes(searchText.toLowerCase())));
+		const lowered = searchText.toLowerCase();
+		return pokemons.filter(p => (
+			p.displayName.toLowerCase().includes(lowered)
+				|| p.identifier.toLowerCase().includes(lowered)
+		));
 	}, [pokemons, searchText]);
 
 	const handleSearchTextChange = (e: ChangeEvent<HTMLInputElement>) => {

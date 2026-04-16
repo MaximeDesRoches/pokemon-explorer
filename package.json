@@ -30,7 +30,7 @@
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
-		"trim-data": "node scripts/trim-json.mjs"
+		"build-index": "node scripts/build-index.mjs"
 	},
 	"eslintConfig": {
 		"extends": [

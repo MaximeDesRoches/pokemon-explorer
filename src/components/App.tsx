@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Route, Routes } from 'react-router-dom';
-import { fetchAllPokemon, fetchAllPokemonSpecies, fetchAllPokemonSpeciesNames, fetchAllPokemonTypes } from '../redux/pokemon';
+import { fetchPokemonIndex } from '../redux/pokemon';
 import { IRootState, useAppDispatch } from '../store';
 import PokemonList from './PokemonList/PokemonList';
 import PokemonDetail from './PokemonDetail/PokemonDetail';
@@ -14,11 +14,8 @@ function App() {
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		dispatch(fetchAllPokemon());
-		dispatch(fetchAllPokemonSpecies());
-		dispatch(fetchAllPokemonSpeciesNames());
-		dispatch(fetchAllPokemonTypes());
-	}, []);
+		dispatch(fetchPokemonIndex());
+	}, [dispatch]);
 
 	const curLang = useSelector((state:IRootState) => state.env.language);
 
