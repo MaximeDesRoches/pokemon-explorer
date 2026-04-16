@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Route, Routes } from 'react-router-dom';
-import { fetchAllPokemon, fetchAllPokemonSpecies, fetchAllPokemonSpeciesFlavorText, fetchAllPokemonSpeciesNames, fetchAllPokemonTypes } from '../redux/pokemon';
+import { fetchAllPokemon, fetchAllPokemonSpecies, fetchAllPokemonSpeciesNames, fetchAllPokemonTypes } from '../redux/pokemon';
 import { IRootState, useAppDispatch } from '../store';
 import PokemonList from './PokemonList/PokemonList';
 import PokemonDetail from './PokemonDetail/PokemonDetail';
@@ -17,7 +17,6 @@ function App() {
 		dispatch(fetchAllPokemon());
 		dispatch(fetchAllPokemonSpecies());
 		dispatch(fetchAllPokemonSpeciesNames());
-		dispatch(fetchAllPokemonSpeciesFlavorText());
 		dispatch(fetchAllPokemonTypes());
 	}, []);
 

@@ -1,7 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { pokemonByIdSelector } from '../../selectors/pokemon';
+import { fetchAllPokemonSpeciesFlavorText } from '../../redux/pokemon';
+import { useAppDispatch } from '../../store';
 
 import './_pokemon-detail.scss';
 
@@ -10,6 +12,11 @@ export default function PokemonDetail() {
 	const numericId = Number(id);
 	const selector = useMemo(() => pokemonByIdSelector(numericId), [numericId]);
 	const pokemon = useSelector(selector);
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		dispatch(fetchAllPokemonSpeciesFlavorText());
+	}, [dispatch]);
 
 	if (Number.isNaN(numericId)) {
 		return <div className="pokemon-detail empty"><Link to="/">← Back</Link><p>Invalid id.</p></div>;
